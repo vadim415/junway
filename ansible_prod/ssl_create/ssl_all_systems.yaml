@@ -1,0 +1,49 @@
+- hosts: all
+  become: yes
+  tasks:
+  - name: update and upgrade
+    apt:
+      update_cache: yes
+      force_apt_get: yes
+      upgrade: dist
+      install_recommends: yes
+      cache_valid_time: 3600
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  - name: update and upgrade on centos
+    yum:
+      name: epel-release
+      state: latest
+      update_cache: yes
+      allow_downgrade: yes
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  - name: install dependencies packages
+    dnf:
+      name: '{{ item }}'
+      state: latest
+      update_cache: yes
+    loop:
+      - wget 
+      - curl
+      - vim 
+      - net-tools 
+      - git 
+      - nmap
+      - telnet 
+      - nmap 
+      - sudo 
+      - bind-utils.x86_64
+      - letsencrypt 
+      - nginx
+  - name: Create a directory if it does not exist
+    file:
+      path: '{{ item.path }}'
+      state: '{{ item.state }}'
+      owner: '{{ item.owner }}'
+      mode: '0766'
+    loop:
+      - state: 'directory'
+        path: '/var/www/domains/.well-known/acme-challenge'
+        owner: 'nginx'
+  - name: command domain certificates
+    shell: certbot certonly  --preferred-challenges http --webroot  -w /var/www/domains/ -d m.roulette77.us
+
