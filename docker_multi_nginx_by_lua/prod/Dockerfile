@@ -1,4 +1,4 @@
-FROM debian:9
+FROM debian:9 as builder
 RUN apt update && apt upgrade -y && apt install curl wget net-tools build-essential git tree software-properties-common dirmngr apt-transport-https gcc perl libperl-dev libgd3 perl libperl-dev libgd3 libgd-dev libgeoip1 libgeoip-dev geoip-bin  libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl libxml2 libxml2-dev libxslt1.1 libxslt1-dev software-properties-common -y 
 RUN cd /home/ && wget https://ftp.pcre.org/pub/pcre/pcre-8.40.tar.gz && tar xzvf pcre-8.40.tar.gz && cd pcre-8.40 && ./configure && make && make install 
 
@@ -57,19 +57,23 @@ RUN cd /home/nginx-1.17.8/ &&  export LUAJIT_LIB=/usr/local/LuaJIT/lib  && expor
            
 RUN cd /home/nginx-1.17.8/ && make  -j2 && make install
 RUN adduser --system --home /nonexistent --shell /bin/false --no-create-home --disabled-login --disabled-password --gecos "nginx user" --group nginx
-#RUN ln -s /usr/lib/nginx/modules /etc/nginx/modules
-#RUN mkdir -p  /var/cache/nginx/client_temp 
-#RUN mkdir -p  /var/cache/nginx/client_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/proxy_temp /var/cache/nginx/scgi_temp /var/cache/nginx/uwsgi_temp 
-#RUN chmod 766 /var/cache/nginx/* && chown nginx:root /var/cache/nginx/* && mkdir -p /etc/nginx/conf.d
-##ADD nginx.conf /etc/nginx/nginx.conf
-##ADD site.conf  /etc/nginx/conf.d/
-##RUN mkdir -p /var/www/domains && chown nginx:nginx /var/www/domains
-##RUN echo "test page for course junway" >  /var/www/domains/index.html
-## Append "daemon off;" to the beginning of the configuration
-##RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-##EXPOSE  80 
+RUN ln -s /usr/lib/nginx/modules /etc/nginx/modules
+RUN mkdir -p  /var/cache/nginx/client_temp 
+RUN mkdir -p  /var/cache/nginx/client_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/proxy_temp /var/cache/nginx/scgi_temp /var/cache/nginx/uwsgi_temp 
+RUN chmod 766 /var/cache/nginx/* && chown nginx:root /var/cache/nginx/* && mkdir -p /etc/nginx/conf.d
+ADD nginx.conf /etc/nginx/nginx.conf
+ADD site.conf  /etc/nginx/conf.d/
+RUN mkdir -p /var/www/domains && chown nginx:nginx /var/www/domains
+RUN echo "test page for course junway" >  /var/www/domains/index.html
+# Append "daemon off;" to the beginning of the configuration
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+EXPOSE  80 
 ##CMD ["nginx", "-g", "daemon off;"]
-##ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
-##CMD ["nginx"]
+#ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]
+#CMD ["nginx"]
+CMD ["/usr/sbin/nginx"]
 ##RUN adduser --system --home /nonexistent --shell /bin/false --no-create-home --disabled-login --disabled-password --gecos "nginx user" --group nginx
 ##--with-openssl=../openssl-1.1.1a \
+
+COPY --from=builder /usr/lib/nginx/modules /usr/lib/nginx/modules
+ 
