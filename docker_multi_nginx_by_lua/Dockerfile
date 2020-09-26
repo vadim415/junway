@@ -73,10 +73,11 @@ RUN ln -s /usr/lib/nginx/modules /etc/nginx/modules
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD site.conf  /etc/nginx/conf.d/
 RUN mkdir -p /var/www/domains && chown nginx:nginx /var/www/domains
+VOLUME  /var/log/nginx/
 RUN echo "test page for course junway" >  /var/www/domains/index.html
 # Append "daemon off;" to the beginning of the configuration
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 EXPOSE  80 
-#CMD ["/usr/sbin/nginx"]
-CMD ["nginx"]
+CMD ["/usr/sbin/nginx"]
+#CMD ["nginx"]
 
