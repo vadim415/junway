@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: debug outbut
+    setup:
+    register: deb1
+  - name: outpu1
+    debug:
+      var: deb1
