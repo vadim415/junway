@@ -1,15 +1,13 @@
 FROM debian:9 as builder
-RUN apt update && apt upgrade -y && apt install curl wget net-tools build-essential git tree software-properties-common dirmngr apt-transport-https gcc perl libperl-dev libgd3 perl libperl-dev libgd3 libgd-dev libgeoip1 libgeoip-dev geoip-bin  libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl libxml2 libxml2-dev libxslt1.1 libxslt1-dev software-properties-common -y 
+RUN apt update && apt upgrade -y && apt install curl wget net-tools build-essential git tree software-properties-common dirmngr apt-transport-https gcc perl libperl-dev libgd3 perl libperl-dev libgd3 libgd-dev libgeoip1 libgeoip-dev geoip-bin  libreadline-dev libncurses5-dev  libssl-dev perl libxml2 libxml2-dev libxslt1.1 libxslt1-dev software-properties-common -y 
 WORKDIR /home
 RUN wget https://ftp.pcre.org/pub/pcre/pcre-8.40.tar.gz && tar xzvf pcre-8.40.tar.gz && cd pcre-8.40 && ./configure && make && make install 
 RUN curl -R -O http://www.lua.org/ftp/lua-5.3.4.tar.gz &&  tar zxf lua-5.3.4.tar.gz && cd /home/lua-5.3.4 && make linux install INSTALL_TOP=/usr/local/lua/5_3_4 MYLIBS="-lncurses"
 RUN  wget https://www.zlib.net/zlib-1.2.11.tar.gz && tar xzvf zlib-1.2.11.tar.gz  && cd /home/zlib-1.2.11 && ./configure && make && make install
-#RUN cd /home/ &&  wget https://www.openssl.org/source/openssl-1.1.1a.tar.gz && tar xzvf openssl-1.1.1a.tar.gz && cd openssl-1.1.1a && ./Configure linux-x86_64 --prefix=/usr && make && make test && make install
 RUN wget http://luajit.org/download/LuaJIT-2.0.4.tar.gz &&  tar -xzvf LuaJIT-2.0.4.tar.gz && cd /home/LuaJIT-2.0.4 && make install PREFIX=/usr/local/LuaJIT 
 
 ENV LUAJIT_LIB=/usr/local/LuaJIT/lib
 ENV LUAJIT_INC=/usr/local/LuaJIT/include/luajit-2.0
-RUN export LUAJIT_LIB=/usr/local/LuaJIT/lib  && export LUAJIT_INC=/usr/local/LuaJIT/include/luajit-2.0
 RUN wget https://github.com/openresty/lua-nginx-module/archive/v0.10.13.tar.gz  && tar zxvf v0.10.13.tar.gz 
 RUN wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.0.tar.gz && tar zxvf v0.3.0.tar.gz
 RUN wget 'https://openresty.org/download/nginx-1.17.8.tar.gz' && tar -xzvf nginx-1.17.8.tar.gz
@@ -31,15 +29,11 @@ RUN ./configure --prefix=/etc/nginx  --sbin-path=/usr/sbin/nginx \
             --with-http_realip_module \
             --with-http_addition_module \
             --with-http_xslt_module=dynamic \
-            --with-http_dav_module \
-            --with-http_flv_module \
-            --with-http_mp4_module \
             --with-http_gunzip_module \
             --with-http_gzip_static_module \
             --with-http_auth_request_module \
             --with-http_random_index_module \
             --with-http_secure_link_module \
-            --with-http_degradation_module \
             --with-http_slice_module \
             --with-http_stub_status_module \
             --http-client-body-temp-path=/var/cache/nginx/client_temp \
@@ -73,10 +67,10 @@ RUN ln -s /usr/lib/nginx/modules /etc/nginx/modules
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD site.conf  /etc/nginx/conf.d/
 RUN mkdir -p /var/www/domains && chown nginx:nginx /var/www/domains
+VOLUME  /var/log/nginx/
 RUN echo "test page for course junway" >  /var/www/domains/index.html
 # Append "daemon off;" to the beginning of the configuration
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 EXPOSE  80 
-#CMD ["/usr/sbin/nginx"]
-CMD ["nginx"]
+CMD ["/usr/sbin/nginx"]
 

@@ -1,0 +1,4 @@
+FROM centos:8
+RUN dnf update -y && dnf upgrade -y  
+RUN dnf install strace -y
+ 
