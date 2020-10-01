@@ -1,0 +1,35 @@
+version: '3'
+services:
+  #Nginx Service
+  postgres:
+    image: postgres
+    restart: always
+    environment: 
+      - DATABASE_HOST=127.0.0.1
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=root  
+    ports: 
+      - "5432:5432"
+    volumes: 
+      - db-data:/var/lib/postgresql/data
+      - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql  
+    networks:
+      - app-network
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:8080"
+      - "443:443"
+    networks:
+      - app-network
+volumes:
+  db-data:
+#driver: local
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
