@@ -1,0 +1,6 @@
+FROM debian:9
+RUN apt update -y && apt upgrade -y && apt install python python3 -y
+COPY ./web.py /home/web.py
+WORKDIR /home
+EXPOSE 9000
+CMD ["python3.5" ,"web.py"]
