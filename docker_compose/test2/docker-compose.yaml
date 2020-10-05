@@ -4,14 +4,14 @@ services:
   #postgres:
   db:
     container_name: db
-    #image: postgres
-    image: postgres:12-alpine
+    image: postgres
     restart: always
     environment: 
-     # - DATABASE_HOST=0.0.0.0
-      - POSTGRES_USER=postgres
+      - DATABASE_HOST=0.0.0.0
+      - POSTGRES_USER=db_app
       - POSTGRES_PASSWORD=mypasswordE3341v
       - POSTGRES_DB=db_app  
+      - POSTGRES_HOST_AUTH_METHOD=trust
     #command: echo "host   all    all  0.0.0.0/24  trust" >> /var/lib/postgresql/data/pg_hba.conf
     ports: 
       - "5432:5432"
