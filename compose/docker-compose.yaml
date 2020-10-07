@@ -2,9 +2,31 @@ version: '3'
 
 services:
 
-  postgres:
+  app:
+    container_name: app2
+    build: .
+    #context: .
+    #dockerfile: Dockerfile
+    image: webapp:tag140
     restart: always
-    image: postgres:latest
+  # build from Dockerfile
+  #context: ./Dockerfile
+  #dockerfile: Dockerfile
+    ports:
+     - "8000:8000"
+  #volumes:
+   #- ./django_blog/:/home 
+  #command: python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py collectstatic && python3 manage.py runserver 0.0.0.0:8000
+    command: python3 manage.py runserver 0.0.0.0:8000
+  #command: ls -la
+    networks:
+      - app-network
+    depends_on:
+     - db
+  db:
+    restart: always
+    container_name: db
+    image: postgres
     ports:
       - "5432:5432"
     environment:
@@ -12,7 +34,12 @@ services:
       - POSTGRES_PASSWORD=Qa37847854854895894
       - POSTGRES_DB=db1
     volumes:
-      - pgdata1:/var/lib/postgresql/data/
+      - ./pgdata1:/var/lib/postgresql/data/
       - ./docker_postgres_init.sql:/docker-entrypoint-initdb.d/docker_postgres_init.sql
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
 volumes:
   pgdata1:
